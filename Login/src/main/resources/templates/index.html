@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中药材管理系统</title>
+    <!-- 国内CDN资源 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- 添加动画库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <!-- 配置Tailwind自定义颜色 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2D6A4F',    // 中药主题绿色
+                        secondary: '#74C69D',  // 浅绿色
+                        accent: '#D8F3DC',     // 淡绿色背景
+                        neutral: '#F8F9FA',    // 浅灰色背景
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }
+            .hover-lift {
+                transition: transform 0.2s, box-shadow 0.2s;
+            }
+            .hover-lift:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            }
+            /* 图片放大查看器样式 */
+            .image-viewer {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.9);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.3s ease;
+            }
+            
+            .image-viewer.active {
+                opacity: 1;
+                pointer-events: all;
+            }
+            
+            .image-viewer img {
+                max-width: 90%;
+                max-height: 90%;
+                object-fit: contain;
+            }
+            
+            .image-viewer .close-btn {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                color: white;
+                font-size: 30px;
+                cursor: pointer;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+<!-- 顶部导航栏 -->
+<header class="bg-primary text-white shadow-md">
+    <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+        <h1 class="text-2xl font-bold flex items-center">
+            <i class="fas fa-leaf mr-2"></i>
+            中药材管理系统
+        </h1>
+
+        <div class="flex items-center justify-between w-full md:w-auto">
+            <div class="text-white/90 flex items-center">
+                <i class="fas fa-user-circle mr-2"></i>
+                <span>你好，<span th:text="${session.user.username}" class="font-medium"></span></span>
+            </div>
+            <a href="/login" id="logoutLink" class="ml-6 text-white hover:text-secondary transition-colors flex items-center">
+                <i class="fas fa-sign-out-alt mr-1"></i>退出登录
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- 主要内容区域 -->
+<main class="flex-grow container mx-auto px-4 py-8">
+    <!-- 页面标题 -->
+    <div class="mb-8 text-center animate__animated animate__fadeInUp">
+        <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-gray-800 flex items-center justify-center">
+            <i class="fas fa-leaf text-primary mr-3 animate__animated animate__pulse animate__infinite"></i>
+            欢迎来到中药材管理页面
+        </h2>
+        <p class="text-gray-600 mt-2 max-w-2xl mx-auto">在这里可以管理所有中药材信息，包括添加、编辑和删除操作</p>
+    </div>
+
+    <!-- 操作区和搜索区 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <!-- 新增按钮 -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-xl p-6 card-shadow hover-lift h-full flex items-center">
+                <a href="/addmedicine" class="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white px-6 py-3 rounded-lg shadow-lg transition-all duration-300 flex items-center justify-center transform hover:-translate-y-1">
+                    <i class="fas fa-plus-circle mr-2 animate__animated animate__pulse"></i>
+                    新增中药材
+                </a>
+            </div>
+        </div>
+
+        <!-- 搜索表单 -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-xl p-6 card-shadow hover-lift h-full">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">搜索中药材</h3>
+                <form action="/index" method="post" class="flex flex-col sm:flex-row gap-4">
+                    <div class="flex-grow relative">
+                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input
+                                type="text"
+                                name="title"
+                                placeholder="请输入搜索的中药材名"
+                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all"
+                        >
+                    </div>
+                    <button
+                            type="submit"
+                            class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg shadow transition-all whitespace-nowrap"
+                    >
+                        <i class="fas fa-search mr-2"></i>搜索
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 表格区域 -->
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden hover-lift">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gradient-to-r from-primary/20 to-secondary/20 text-gray-800">
+                <tr>
+                    <th class="px-4 py-3 text-left text-sm font-semibold rounded-tl-lg">中药材ID</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold">中药材名称</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold">中药材图片</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold">中药材介绍</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold">创建时间</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold">更新时间</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold">删除操作</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold rounded-tr-lg">编辑操作</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                <tr th:each="medicine:${medicineList}" class="hover:bg-accent/50 transition-colors cursor-pointer" th:attr="data-id=${medicine.id}">
+                    <td th:text="${medicine.id}" class="px-6 py-4 text-sm text-gray-800"></td>
+                    <td th:text="${medicine.title}" class="px-6 py-4 text-sm font-medium text-gray-900"></td>
+                    <td class="px-6 py-4">
+                        <div class="w-16 h-16 rounded-lg overflow-hidden border border-gray-200">
+                            <img
+                                    th:src="${medicine.imgurl}"
+                                    alt="中药材图片"
+                                    class="w-full h-full object-cover transition-transform hover:scale-110"
+                            >
+                        </div>
+                    </td>
+                    <td th:text="${medicine.introduction}" class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate"></td>
+                    <td th:text="${#dates.format(medicine.created_at, 'yyyy-MM-dd HH:mm:ss')}" class="px-6 py-4 text-sm text-gray-600"></td>
+                    <td th:text="${#dates.format(medicine.updated_at, 'yyyy-MM-dd HH:mm:ss')}" class="px-6 py-4 text-sm text-gray-600"></td>
+                    <td class="px-6 py-4">
+                        <a
+                                th:href="@{/deletemedicine(id=${medicine.id})}"
+                                class="text-red-600 hover:text-red-800 transition-colors flex items-center text-sm"
+                                onclick="return confirm('确定要删除这条记录吗？')"
+                        >
+                            <i class="fas fa-trash-alt mr-1"></i>删除
+                        </a>
+                    </td>
+                    <td class="px-6 py-4">
+                        <a
+                                th:href="@{/updatemedicine(id=${medicine.id},title=${medicine.title},imgurl=${medicine.imgurl},introduction=${medicine.introduction})}"
+                                class="text-blue-600 hover:text-blue-800 transition-colors flex items-center text-sm"
+                        >
+                            <i class="fas fa-edit mr-1"></i>编辑
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 空状态提示 (当没有数据时显示) -->
+        <div class="px-6 py-16 text-center hidden" th:if="${medicineList.isEmpty()}">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-100 mb-4">
+                <i class="fas fa-box-open text-gray-400 text-3xl"></i>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">暂无中药材数据</h3>
+            <p class="text-gray-500 max-w-md mx-auto mb-6">请点击"新增中药材"按钮添加数据，或检查搜索条件是否正确。</p>
+            <a href="/addmedicine" class="inline-flex items-center bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-lg shadow transition-all">
+                <i class="fas fa-plus-circle mr-2"></i>
+                新增第一条数据
+            </a>
+        </div>
+    </div>
+</main>
+
+<!-- 详情模态框 -->
+<div id="detailModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden animate__animated animate__fadeIn">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto mx-4 animate__animated animate__zoomIn">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-200">
+                <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-info-circle text-primary mr-2"></i>中药材详情
+                </h3>
+                <button id="closeModal" class="text-gray-500 hover:text-gray-700 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="medicineDetailContent" class="py-2">
+                <!-- 详情内容将通过 AJAX 加载 -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 图片查看器 -->
+<div id="imageViewer" class="image-viewer">
+    <span class="close-btn">&times;</span>
+    <img id="viewerImage" src="" alt="图片查看器">
+</div>
+
+<!-- 页脚 -->
+<footer class="bg-gray-800 text-white py-6 mt-12">
+    <div class="container mx-auto px-4 text-center">
+        <p class="text-gray-400 text-sm">
+            &copy; 2025 中药材管理系统 - 保护传统中医药文化
+        </p>
+    </div>
+</footer>
+
+<!-- 交互脚本 -->
+<script>
+    // 表格行加载动画
+    document.addEventListener('DOMContentLoaded', () => {
+        const rows = document.querySelectorAll('tbody tr');
+        rows.forEach((row, index) => {
+            row.style.opacity = '0';
+            row.style.transform = 'translateY(10px)';
+            row.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+
+            setTimeout(() => {
+                row.style.opacity = '1';
+                row.style.transform = 'translateY(0)';
+            }, 100 * index);
+        });
+
+        // 检查是否有数据，控制空状态显示
+        if (rows.length === 0) {
+            document.querySelector('div:hidden[th\\:if="${medicineList.isEmpty()}"]')?.classList.remove('hidden');
+        }
+
+        // 退出登录确认框
+        const logoutLink = document.getElementById('logoutLink');
+        logoutLink.addEventListener('click', function(e) {
+            // 显示确认对话框
+            const confirmLogout = confirm('确定要退出登录吗？');
+            // 如果用户取消，则阻止默认行为
+            if (!confirmLogout) {
+                e.preventDefault();
+            }
+        });
+        
+        // 为表格行添加点击事件
+        rows.forEach(row => {
+            row.addEventListener('click', function(e) {
+                // 如果点击的是编辑或删除按钮，则不触发详情弹窗
+                if (e.target.closest('a')) {
+                    return;
+                }
+                
+                const medicineId = this.getAttribute('data-id');
+                showMedicineDetail(medicineId);
+            });
+        });
+        
+        // 关闭模态框
+        document.getElementById('closeModal').addEventListener('click', closeDetailModal);
+        document.getElementById('detailModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDetailModal();
+            }
+        });
+        
+        // 图片查看器功能
+        const imageViewer = document.getElementById('imageViewer');
+        const viewerImage = document.getElementById('viewerImage');
+        const closeBtn = document.querySelector('.image-viewer .close-btn');
+        
+        // 点击图片时显示图片查看器
+        document.addEventListener('click', function(e) {
+            if (e.target.tagName === 'IMG' && (e.target.closest('#medicineDetailContent') || e.target.closest('tbody'))) {
+                const imgSrc = e.target.src;
+                viewerImage.src = imgSrc;
+                imageViewer.classList.add('active');
+                document.body.style.overflow = 'hidden'; // 防止背景滚动
+            }
+        });
+        
+        // 关闭图片查看器
+        closeBtn.addEventListener('click', closeImageViewer);
+        imageViewer.addEventListener('click', function(e) {
+            if (e.target === imageViewer) {
+                closeImageViewer();
+            }
+        });
+        
+        // 按 ESC 键关闭图片查看器
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && imageViewer.classList.contains('active')) {
+                closeImageViewer();
+            }
+        });
+    });
+    
+    // 显示中药材详情
+    function showMedicineDetail(medicineId) {
+        fetch(`/medicineDetail?id=${medicineId}`)
+            .then(response => response.json())
+            .then(medicine => {
+                const detailContent = `
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-32 h-32 rounded-lg overflow-hidden border border-gray-200 cursor-pointer hover:opacity-90">
+                                <img src="${medicine.imgurl}" alt="${medicine.title}" class="w-full h-full object-cover" id="detailImage">
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <h4 class="text-lg font-semibold text-gray-900">${medicine.title}</h4>
+                                <div class="mt-2 text-sm text-gray-600">
+                                    <p><strong>ID:</strong> ${medicine.id}</p>
+                                    <p><strong>创建时间:</strong> ${formatDate(medicine.created_at)}</p>
+                                    <p><strong>更新时间:</strong> ${formatDate(medicine.updated_at)}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <h5 class="font-medium text-gray-900">介绍</h5>
+                            <p class="mt-1 text-gray-600">${medicine.introduction || '暂无介绍'}</p>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('medicineDetailContent').innerHTML = detailContent;
+                document.getElementById('detailModal').classList.remove('hidden');
+            })
+            .catch(error => {
+                console.error('获取详情失败:', error);
+                alert('获取详情失败，请稍后重试');
+            });
+    }
+    
+    // 关闭详情模态框
+    function closeDetailModal() {
+        document.getElementById('detailModal').classList.add('hidden');
+    }
+    
+    // 关闭图片查看器
+    function closeImageViewer() {
+        document.getElementById('imageViewer').classList.remove('active');
+        document.body.style.overflow = ''; // 恢复背景滚动
+    }
+    
+    // 格式化日期时间
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        }).replace(/\//g, '-');
+    }
+</script>
+</body>
+</html>

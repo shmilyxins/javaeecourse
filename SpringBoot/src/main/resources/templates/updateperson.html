@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>更新用户 - 用户管理系统</title>
+    <!-- 国内CDN资源 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.staticfile.org/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Tailwind 配置 - 保持与主系统一致的样式 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36CFC9',
+                        accent: '#722ED1',
+                        neutral: '#F5F7FA',
+                        'neutral-dark': '#4E5969',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .shadow-soft {
+                box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            }
+            .transition-all-300 {
+                transition: all 0.3s ease;
+            }
+            .form-input-focus {
+                @apply focus:ring-2 focus:ring-primary/50 focus:border-primary focus:outline-none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800 min-h-screen opacity-0 transition-opacity duration-500">
+<!-- 顶部导航栏 - 与主系统保持一致 -->
+<header class="bg-white shadow-sm sticky top-0 z-10">
+    <div class="container mx-auto px-4 py-4 flex flex-wrap items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <i class="fa fa-users text-primary text-2xl"></i>
+            <h1 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-gray-800">用户管理系统</h1>
+        </div>
+
+        <div class="mt-3 sm:mt-0">
+            <a href="/index" class="inline-flex items-center px-4 py-2 text-primary hover:text-primary/80 transition-all-300">
+                <i class="fa fa-arrow-left mr-2"></i>返回列表
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- 主内容区 -->
+<main class="container mx-auto px-4 py-8">
+    <!-- 页面标题 -->
+    <div class="mb-8 text-center">
+        <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-gray-800 inline-flex items-center">
+            <i class="fa fa-user-edit text-primary mr-3"></i>更新用户
+        </h2>
+        <p class="text-gray-500 mt-2">请修改用户信息完成更新</p>
+    </div>
+
+    <!-- 当前用户ID信息 -->
+    <div class="max-w-md mx-auto mb-6 p-4 bg-blue-50 border border-blue-100 rounded-lg">
+        <p class="text-blue-800 flex items-center">
+            <i class="fa fa-info-circle mr-2"></i>
+            <span th:text="${'当前用户id: ' + person.id}"></span>
+        </p>
+    </div>
+
+    <!-- 表单卡片 -->
+    <div class="max-w-md mx-auto bg-white rounded-xl shadow-soft overflow-hidden transition-all-300 hover:shadow-md">
+        <div class="p-6 sm:p-8">
+            <form action="/updatepersoncommit" method="post" class="space-y-6">
+                <!-- 隐藏的ID字段 -->
+                <input type="text" hidden="hidden" name="id" th:value="${person.id}"
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+
+                <!-- 用户名输入 -->
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
+                        <i class="fa fa-user text-primary mr-1"></i>用户名
+                    </label>
+                    <input type="text" id="name" name="name" th:value="${person.name}" placeholder="请输入用户名"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg transition-all-300 form-input-focus">
+                </div>
+
+                <!-- 年龄输入 -->
+                <div>
+                    <label for="age" class="block text-sm font-medium text-gray-700 mb-1">
+                        <i class="fa fa-calendar text-primary mr-1"></i>年龄
+                    </label>
+                    <input type="text" id="age" name="age" th:value="${person.age}" placeholder="请输入用户年龄"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg transition-all-300 form-input-focus">
+                    <p class="mt-1 text-xs text-gray-500">请输入数字形式的年龄</p>
+                </div>
+
+                <!-- 提交按钮 -->
+                <div>
+                    <button type="submit" class="w-full flex justify-center items-center px-5 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all-300 font-medium">
+                        <i class="fa fa-save mr-2"></i>更新用户
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<!-- 页脚 -->
+<footer class="bg-white border-t border-gray-200 mt-16">
+    <div class="container mx-auto px-4 py-6">
+        <p class="text-center text-gray-500 text-sm">© 2023 用户管理系统 - 版权所有</p>
+    </div>
+</footer>
+
+<!-- 交互脚本 -->
+<script>
+    // 页面加载动画
+    document.addEventListener('DOMContentLoaded', () => {
+        document.body.classList.add('opacity-100');
+    });
+
+    // 表单验证
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const nameInput = document.getElementById('name');
+        const ageInput = document.getElementById('age');
+        let isValid = true;
+
+        // 清除之前的错误状态
+        nameInput.classList.remove('border-red-500');
+        ageInput.classList.remove('border-red-500');
+
+        // 验证用户名
+        if (!nameInput.value.trim()) {
+            nameInput.classList.add('border-red-500');
+            isValid = false;
+        }
+
+        // 验证年龄（必须是数字）
+        if (!ageInput.value.trim() || isNaN(ageInput.value)) {
+            ageInput.classList.add('border-red-500');
+            isValid = false;
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+            alert('请检查输入的信息是否正确');
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/Spring/pom.xml" />
+        <option value="$PROJECT_DIR$/SpringBoot/pom.xml" />
+        <option value="$PROJECT_DIR$/task1/pom.xml" />
+        <option value="$PROJECT_DIR$/Login/pom.xml" />
+        <option value="$PROJECT_DIR$/task2/pom.xml" />
+        <option value="$PROJECT_DIR$/coursedesign/pom.xml" />
+        <option value="$PROJECT_DIR$/../code/mishop/back/mishop/pom.xml" />
+        <option value="$PROJECT_DIR$/../code/examcode/back/javaeee/pom.xml" />
+        <option value="$PROJECT_DIR$/../code/examcode/back/javaee/pom.xml" />
+        <option value="$PROJECT_DIR$/../coursedesign/back/coursedesign/pom.xml" />
+        <option value="$PROJECT_DIR$/../examcode/back/javaee/pom.xml" />
+        <option value="$PROJECT_DIR$/../基于YOLO模型的中草药智能识别与信息查询系统/backend/herb-backend-smart/pom.xml" />
+        <option value="$PROJECT_DIR$/../HarmonyOS/SmartAgriculture-backend/pom.xml" />
+        <option value="$PROJECT_DIR$/../SZML/SpringBootDemo/pom.xml" />
+        <option value="$PROJECT_DIR$/../SZML/demo/pom.xml" />
+      </list>
+    </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/coursedesign/pom.xml" />
+      </set>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_21" default="true" project-jdk-name="21" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+</project>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.task2.c202301020241.mapper.PhysicianMapper">
+    <insert id="addPhysician" parameterType="com.task2.c202301020241.model.Physician">
+        INSERT INTO ancient_physicians(
+            name, courtesy_name, other_name, birth_date, death_date,
+            dynasty, birth_place, achievements, works, speciality,
+            publications, thumbnail, created_at, updated_at
+        ) VALUES(
+                    #{name}, #{courtesy_name}, #{other_name}, #{birth_date}, #{death_date},
+                    #{dynasty}, #{birth_place}, #{achievements}, #{works}, #{speciality},
+                    #{publications}, #{thumbnail}, NOW(), NOW()
+                );
+    </insert>
+    <select id="getAllPhysician" resultType="com.task2.c202301020241.model.Physician">
+        SELECT * FROM ancient_physicians
+    </select>
+    <select id="getAllPhysicianByName" resultType="com.task2.c202301020241.model.Physician">
+        SELECT * FROM ancient_physicians WHERE name LIKE '%${name}%';
+    </select>
+    <select id="getAllPhysicianByPage" resultType="com.task2.c202301020241.model.Physician">
+        SELECT * FROM ancient_physicians LIMIT #{pageNum}, #{pageSize}
+    </select>
+    <delete id="deletePhysician">
+        DELETE FROM ancient_physicians WHERE id = #{id}
+    </delete>
+    <update id="updatePhysician">
+        UPDATE ancient_physicians SET
+            name = #{name},
+            courtesy_name = #{courtesy_name},
+            other_name = #{other_name},
+            birth_date = #{birth_date},
+            death_date = #{death_date},
+            dynasty = #{dynasty},
+            birth_place = #{birth_place},
+            achievements = #{achievements},
+            works = #{works},
+            speciality = #{speciality},
+            publications = #{publications},
+            thumbnail = #{thumbnail},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+</mapper>

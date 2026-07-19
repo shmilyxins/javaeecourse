@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>页面2</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h1>第二个页面</h1>
+    <p>用户名: <span id="username">访客</span></p>
+    <button onclick="logout()">注销</button>
+    <button onclick="redirectToIndex()">返回首页</button>
+    <script>
+        // 页面加载时恢复用户名
+        window.onload = function() {
+            fetch('UserServlet')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.username) {
+                        document.getElementById('username').textContent = data.username;
+                    } else {
+                        // 如果没有用户名，重定向到首页
+                        window.location.href = 'index.html';
+                    }
+                });
+        };
+        
+        // 注销
+        function logout() {
+            fetch('LogoutServlet', {method: 'POST'})
+                .then(() => {
+                    window.location.href = 'index.html';
+                });
+        }
+        
+        // 返回首页
+        function redirectToIndex() {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

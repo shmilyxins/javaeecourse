@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hnucm.springboot.mapper.ProductMapper">
+    <select id="getAllProducts" resultMap="producttype">
+        SELECT t_product.*,
+               t_type.id AS tid,
+               t_type.name,
+               t_type.create_time AS t_create_time,
+               t_type.update_time AS t_update_time
+        FROM t_product
+                 LEFT JOIN t_type ON t_product.type_id = t_type.id
+    </select>
+    <resultMap id="producttype" type="com.hnucm.springboot.model.Product">
+        <id property="id" column="id"/>
+        <result property="type_id" column="type_id"/>
+        <result property="desc" column="desc"/>
+        <result property="image_url" column="image_url"/>
+        <result property="inventory" column="inventory"/>
+        <result property="status" column="status"/>
+        <association property="type" javaType="com.hnucm.springboot.model.Type">
+            <id property="id" column="tid"/>
+            <result property="name" column="name"/>
+            <result property="create_time" column="t_create_time"/>
+            <result property="update_time" column="t_update_time"/>
+        </association>
+    </resultMap>
+
+    <select id="getAllProductsByTypeOrDesc" resultMap="producttype">
+        SELECT t_product.*,
+        t_type.id AS tid,
+        t_type.name,
+        t_type.create_time AS t_create_time,
+        t_type.update_time AS t_update_time
+        FROM t_product
+        LEFT JOIN t_type ON t_product.type_id = t_type.id
+        <where>
+            <if test="type != null">
+                t_type.name LIKE '%${type}%'
+            </if>
+            <if test="desc != null">
+                AND t_product.desc LIKE '%${desc}%'
+            </if>
+        </where>
+    </select>
+
+    <select id="getAllTypes" resultType="com.hnucm.springboot.model.Type">
+        SELECT * FROM t_type
+    </select>
+
+    <select id="getProductById" parameterType="int" resultMap="productDetail">
+        SELECT t_product.*,
+               t_type.id AS tid,
+               t_type.name,
+               t_type.create_time AS t_create_time,
+               t_type.update_time AS t_update_time,
+               t_product_detail.id AS pdid,
+               t_product_detail.pid,
+               t_product_detail.name AS p_name,
+               t_product_detail.price AS p_price,
+               t_product_detail.full_price,
+               t_product_detail.image_url AS p_image_url
+        FROM t_product
+                 LEFT JOIN t_type ON t_product.type_id = t_type.id
+                 LEFT JOIN t_product_detail ON t_product.id = t_product_detail.pid
+        WHERE t_product.id = #{id}
+    </select>
+
+    <resultMap id="productDetail" type="com.hnucm.springboot.model.Product">
+        <id property="id" column="id"/>
+        <result property="type_id" column="type_id"/>
+        <result property="desc" column="desc"/>
+        <result property="image_url" column="image_url"/>
+        <result property="inventory" column="inventory"/>
+        <result property="status" column="status"/>
+        <association property="type" javaType="com.hnucm.springboot.model.Type">
+            <id property="id" column="tid"/>
+            <result property="name" column="name"/>
+            <result property="create_time" column="t_create_time"/>
+            <result property="update_time" column="t_update_time"/>
+        </association>
+        <collection property="productDetails" ofType="com.hnucm.springboot.model.ProductDetail">
+            <id property="id" column="pdid"/>
+            <result property="pid" column="pid"/>
+            <result property="name" column="p_name"/>
+            <result property="price" column="p_price"/>
+            <result property="full_price" column="full_price"/>
+            <result property="image_url" column="p_image_url"/>
+        </collection>
+    </resultMap>
+
+    <insert id="addProduct"
+            useGeneratedKeys="true"
+            keyProperty="id"
+            parameterType="com.hnucm.springboot.model.Product" >
+        insert into t_product(type_id,`desc`,image_url,inventory,status,create_time,update_time)
+        values(#{type_id},#{desc},#{image_url},#{inventory},#{status},NOW(),NOW());
+    </insert>
+    <insert id="addProductDetail" parameterType="com.hnucm.springboot.model.ProductDetail">
+        insert into t_product_detail(pid,name,price,full_price,image_url,create_time,update_time) values(#{pid},#{name},#{price},#{full_price},#{image_url},NOW(),NOW());
+    </insert>
+
+    <delete id="deleteProduct" parameterType="int">
+        delete from t_product where id=#{id}
+    </delete>
+    <delete id="deleteProductAndDetails" parameterType="int">
+        delete from t_product_detail where pid= #{id}
+    </delete>
+
+    <update id="updateProduct" parameterType="com.hnucm.springboot.model.Product">
+        update t_product set type_id=#{type_id},`desc`=#{desc},image_url=#{image_url},inventory=#{inventory},status=#{status},update_time=NOW() where id=#{id}
+    </update>
+
+    <select id="getAllTypesByName" parameterType="String" resultType="com.hnucm.springboot.model.Type">
+        SELECT * FROM t_type
+        <where>
+            <if test="name != null">
+                t_type.name LIKE '%${name}%'
+            </if>
+        </where>
+    </select>
+
+    <insert id="addType" parameterType="com.hnucm.springboot.model.Type">
+        insert into t_type(name,create_time,update_time) values(#{name},NOW(),NOW());
+    </insert>
+    <delete id="deleteType" parameterType="int">
+        delete from t_type where id= #{id}
+    </delete>
+    <update id="updateType" parameterType="com.hnucm.springboot.model.Type">
+        update t_type set name= #{name},update_time=NOW() where id= #{id}
+    </update>
+</mapper>

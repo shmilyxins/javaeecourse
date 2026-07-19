@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hnucm.springboot.mapper.UserMapper">
+    <insert id="addUser"
+            useGeneratedKeys="true"
+            keyProperty="id"
+            parameterType="com.hnucm.springboot.model.User">
+        insert into t_user(username,password,email,phone,status,create_time,update_time)
+        values(#{username},#{password},#{email},#{phone},#{status},NOW(),NOW());
+    </insert>
+
+    <insert id="addUserInfo" parameterType="com.hnucm.springboot.model.UserInfo">
+        insert into t_userinfo(userid,realname,gender,avatar) values(#{userid},#{realname},#{gender},#{avatar});
+    </insert>
+
+    <select id="findUserByName" parameterType="String" resultType="com.hnucm.springboot.model.User">
+        select * from t_user where username=#{username}
+    </select>
+
+    <select id="findAllUserWithInfo" resultMap="userInfoMap">
+        SELECT t_user.*,
+               t_userinfo.id AS uiid,
+               t_userinfo.userid,
+               t_userinfo.realname,
+               t_userinfo.gender,
+               t_userinfo.avatar
+        FROM t_user
+                 LEFT JOIN t_userinfo
+                           ON t_userinfo.userid = t_user.id
+    </select>
+
+    <resultMap id="userInfoMap" type="com.hnucm.springboot.model.User">
+        <id property="id" column="id" />
+        <result property="username" column="username" />
+        <result property="password" column="password" />
+        <result property="email" column="email" />
+        <result property="phone" column="phone" />
+        <result property="status" column="status" />
+        <result property="create_time" column="create_time" />
+        <result property="update_time" column="update_time" />
+        <association property="userInfo" javaType="UserInfo">
+            <id property="id" column="uiid" />
+            <result property="userid" column="userid" />
+            <result property="realname" column="realname" />
+            <result property="gender" column="gender" />
+            <result property="avatar" column="avatar" />
+        </association>
+    </resultMap>
+
+
+    <delete id="deleteUserById" parameterType="integer">
+        delete from t_user where id=#{id}
+    </delete>
+
+    <delete id="deleteUserInfoById" parameterType="integer">
+        delete from t_userinfo where userid= #{id}
+    </delete>
+
+    <select id="findAllUserWithGrade" resultMap="userInfoWithGrade">
+        SELECT t_user.*,
+               t_grades.id as gid,
+               t_grades.student_id,
+               t_grades.course_name,
+               t_grades.score,
+               t_grades.credits,
+               t_grades.credit_hours,
+               t_userinfo.id AS uiid,
+               t_userinfo.userid,
+               t_userinfo.realname,
+               t_userinfo.gender,
+               t_userinfo.avatar
+        FROM t_user
+                 LEFT JOIN t_userinfo
+                           ON t_user.id = t_userinfo.userid
+                 LEFT JOIN t_grades
+                           ON t_user.id = t_grades.student_id
+    </select>
+
+    <resultMap id="userInfoWithGrade" type="com.hnucm.springboot.model.User">
+        <id property="id" column="id" />
+        <result property="username" column="username" />
+        <result property="password" column="password" />
+        <result property="email" column="email" />
+        <result property="phone" column="phone" />
+        <result property="status" column="status" />
+        <result property="create_time" column="create_time" />
+        <result property="update_time" column="update_time" />
+        <association property="userInfo" javaType="UserInfo">
+            <id property="id" column="uiid" />
+            <result property="userid" column="userid" />
+            <result property="realname" column="realname" />
+            <result property="gender" column="gender" />
+            <result property="avatar" column="avatar" />
+        </association>
+        <collection property="gradeList" ofType="com.hnucm.springboot.model.Grade">
+            <id property="id" column="gid" />
+            <result property="student_id" column="student_id" />
+            <result property="course_name" column="course_name" />
+            <result property="score" column="score" />
+            <result property="credits" column="credits" />
+            <result property="credit_hours" column="credit_hours" />
+        </collection>
+    </resultMap>
+
+    <select id="findAllUserWithCourse" resultMap="userWithCourse">
+        SELECT t_user.*,
+               t_course.id as cid,
+               t_course.course_name,
+               t_course.credits,
+               t_course.credit_hours,
+               t_course.teacher,
+               t_course.semester
+        FROM t_user
+                 LEFT JOIN t_user_course
+                           ON t_user.id = t_user_course.user_id
+                 LEFT JOIN t_course
+                           ON t_course.id = t_user_course.course_id
+    </select>
+
+    <resultMap id="userWithCourse" type="com.hnucm.springboot.model.User">
+        <id property="id" column="id" />
+        <result property="username" column="username" />
+        <result property="password" column="password" />
+        <result property="email" column="email" />
+        <result property="phone" column="phone" />
+        <result property="status" column="status" />
+        <result property="create_time" column="create_time" />
+        <result property="update_time" column="update_time" />
+        <collection property="courseList" ofType="com.hnucm.springboot.model.Course">
+            <id property="id" column="cid" />
+            <result property="course_name" column="course_name" />
+            <result property="credits" column="credits" />
+            <result property="credit_hours" column="credit_hours" />
+            <result property="teacher" column="teacher" />
+            <result property="semester" column="semester" />
+        </collection>
+    </resultMap>
+
+</mapper>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hnucm.springboot.mapper.PersonMapper">
+    <!-- 获取所有用户  id方法的名字 resultType 返回值的类型-->
+    <select id="getAllPerson" resultType="com.hnucm.springboot.model.Person">
+        select * from person
+    </select>
+    <insert id="addPerson" parameterType="com.hnucm.springboot.model.Person">
+            insert into person(name,age) values(#{name},#{age});
+    </insert>
+    <delete id="deletePerson" parameterType="integer">
+        delete from person where id=#{id};
+    </delete>
+    <update id="updatePerson" parameterType="com.hnucm.springboot.model.Person">
+        update person set name=#{name},age=#{age} where id=#{id};
+    </update>
+    <select id="getAllPersonByName" parameterType="string" resultType="com.hnucm.springboot.model.Person">
+        select * from person where name like '%${name}%';
+    </select>
+</mapper>

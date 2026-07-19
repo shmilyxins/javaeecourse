@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>首页</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h1>欢迎页面</h1>
+    <p>用户名: <span id="username">访客</span></p>
+    <form id="loginForm">
+        <input type="text" id="usernameInput" placeholder="请输入用户名">
+        <button type="button" onclick="login()">登录</button>
+    </form>
+    <button onclick="redirectToAnotherPage()">跳转到其他页面</button>
+    <script>
+        // 页面加载时恢复用户名
+        window.onload = function() {
+            fetch('UserServlet')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.username) {
+                        document.getElementById('username').textContent = data.username;
+                        document.getElementById('loginForm').style.display = 'none';
+                    }
+                });
+        };
+        
+        // 登录
+        function login() {
+            const username = document.getElementById('usernameInput').value;
+            if (username) {
+                fetch('LoginServlet', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'username=' + encodeURIComponent(username)
+                }).then(() => {
+                    document.getElementById('username').textContent = username;
+                    document.getElementById('loginForm').style.display = 'none';
+                });
+            }
+        }
+        
+        // 跳转到另一个页面
+        function redirectToAnotherPage() {
+            window.location.href = 'page2.html';
+        }
+    </script>
+</body>
+</html>

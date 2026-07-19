@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 - 用户管理系统</title>
+    <!-- 国内CDN资源 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.staticfile.org/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Tailwind 配置 - 保持与主系统一致的样式 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36CFC9',
+                        accent: '#722ED1',
+                        neutral: '#F5F7FA',
+                        'neutral-dark': '#4E5969',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .shadow-soft {
+                box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            }
+            .transition-all-300 {
+                transition: all 0.3s ease;
+            }
+            .form-input-focus {
+                @apply focus:ring-2 focus:ring-primary/50 focus:border-primary focus:outline-none;
+            }
+            .register-card {
+                @apply bg-white rounded-xl shadow-soft overflow-hidden transition-all-300 hover:shadow-md;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-primary/5 to-primary/10 font-sans text-gray-800 min-h-screen flex flex-col opacity-0 transition-opacity duration-500">
+<!-- 顶部导航栏 - 与主系统保持一致 -->
+<header class="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
+    <div class="container mx-auto px-4 py-4 flex flex-wrap items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <i class="fa fa-users text-primary text-2xl"></i>
+            <h1 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-gray-800">用户管理系统</h1>
+        </div>
+
+        <div class="mt-3 sm:mt-0">
+            <a href="/login" class="inline-flex items-center px-4 py-2 text-primary hover:text-primary/80 transition-all-300">
+                <i class="fa fa-arrow-left mr-2"></i>返回登录
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- 主内容区 -->
+<main class="container mx-auto px-4 py-12 flex-grow flex items-center justify-center">
+    <!-- 注册卡片 -->
+    <div class="w-full max-w-md register-card">
+        <div class="p-8">
+            <!-- 注册标题 -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary mb-4">
+                    <i class="fa fa-user-plus text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">用户注册</h2>
+                <p class="text-gray-500 mt-2">请填写以下信息完成注册</p>
+            </div>
+
+            <!-- 注册表单 -->
+            <form action="/registercommit" method="post" class="space-y-5">
+                <!-- 用户名输入 -->
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">
+                        <i class="fa fa-user text-primary mr-1"></i>用户名
+                    </label>
+                    <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
+                                <i class="fa fa-user"></i>
+                            </span>
+                        <input type="text" id="username" name="username" placeholder="请输入用户名"
+                               class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg transition-all-300 form-input-focus">
+                    </div>
+                </div>
+
+                <!-- 密码输入 -->
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
+                        <i class="fa fa-lock text-primary mr-1"></i>密码
+                    </label>
+                    <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
+                                <i class="fa fa-lock"></i>
+                            </span>
+                        <input type="password" id="password" name="password" placeholder="请输入密码"
+                               class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg transition-all-300 form-input-focus">
+                        <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-primary transition-all-300">
+                            <i class="fa fa-eye-slash"></i>
+                        </button>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">密码长度至少6位</p>
+                </div>
+
+                <!-- 邮箱输入 -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+                        <i class="fa fa-envelope text-primary mr-1"></i>邮箱
+                    </label>
+                    <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
+                                <i class="fa fa-envelope"></i>
+                            </span>
+                        <input type="text" id="email" name="email" placeholder="请输入邮箱"
+                               class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg transition-all-300 form-input-focus">
+                    </div>
+                </div>
+
+                <!-- 手机号输入 -->
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">
+                        <i class="fa fa-phone text-primary mr-1"></i>手机号
+                    </label>
+                    <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
+                                <i class="fa fa-phone"></i>
+                            </span>
+                        <input type="text" id="phone" name="phone" placeholder="请输入手机号"
+                               class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg transition-all-300 form-input-focus">
+                    </div>
+                </div>
+
+                <!-- 提交按钮 -->
+                <div>
+                    <button type="submit" class="w-full flex justify-center items-center px-5 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all-300 font-medium shadow-sm hover:shadow">
+                        <i class="fa fa-check-circle mr-2"></i>注册
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<!-- 页脚 -->
+<footer class="bg-white/80 backdrop-blur-sm border-t border-gray-200 py-6">
+    <div class="container mx-auto px-4">
+        <p class="text-center text-gray-500 text-sm">© 2023 用户管理系统 - 版权所有</p>
+    </div>
+</footer>
+
+<!-- 交互脚本 -->
+<script>
+    // 页面加载动画
+    document.addEventListener('DOMContentLoaded', () => {
+        document.body.classList.add('opacity-100');
+    });
+
+    // 密码显示/隐藏切换
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+
+    togglePassword.addEventListener('click', () => {
+        // 切换密码可见性
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+
+        // 切换图标
+        const icon = togglePassword.querySelector('i');
+        if (type === 'password') {
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    });
+
+    // 表单验证
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const emailInput = document.getElementById('email');
+        const phoneInput = document.getElementById('phone');
+        let isValid = true;
+
+        // 清除之前的错误状态
+        usernameInput.classList.remove('border-red-500');
+        passwordInput.classList.remove('border-red-500');
+        emailInput.classList.remove('border-red-500');
+        phoneInput.classList.remove('border-red-500');
+
+        // 验证用户名
+        if (!usernameInput.value.trim()) {
+            usernameInput.classList.add('border-red-500');
+            isValid = false;
+        }
+
+        // 验证密码（至少6位）
+        if (!passwordInput.value.trim() || passwordInput.value.length < 6) {
+            passwordInput.classList.add('border-red-500');
+            isValid = false;
+        }
+
+        // 简单验证邮箱格式
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailInput.value.trim() || !emailPattern.test(emailInput.value)) {
+            emailInput.classList.add('border-red-500');
+            isValid = false;
+        }
+
+        // 简单验证手机号（11位数字）
+        const phonePattern = /^\d{11}$/;
+        if (!phoneInput.value.trim() || !phonePattern.test(phoneInput.value)) {
+            phoneInput.classList.add('border-red-500');
+            isValid = false;
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+            alert('请检查输入的信息是否正确');
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hnucm.task1.mapper.MedicineMapper">
+    <select id="getAllMedicine" resultType="com.hnucm.task1.model.Medicine">
+        select * from cmedical;
+    </select>
+
+    <insert id="addMedicine" parameterType="com.hnucm.task1.model.Medicine">
+        insert into cmedical(title,imgurl,introduction,created_at,updated_at)
+        values(#{title},#{imgurl},#{introduction},NOW(),NOW());
+    </insert>
+
+    <delete id="deleteMedicine" parameterType="int">
+        delete from cmedical where id=#{id};
+    </delete>
+
+    <update id="updateMedicine" parameterType="com.hnucm.task1.model.Medicine">
+        update cmedical set title=#{title},imgurl=#{imgurl},introduction=#{introduction},updated_at=NOW()
+        where id=#{id};
+    </update>
+
+    <select id="getAllMedicineByName" parameterType="String" resultType="com.hnucm.task1.model.Medicine">
+        select * from cmedical where title like '%${title}%';
+    </select>
+
+    <select id="getMedicineById" parameterType="int" resultType="com.hnucm.task1.model.Medicine">
+        select * from cmedical where id=#{id};
+    </select>
+
+</mapper>
